@@ -28,7 +28,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 3. **Analysis and Visualization**
 
-   Open PowerBI and connect to your SQL database. Import the prepared data and utilize the provided PowerBI dashboard file (`HR_Analytics_Dashboard.pbix`) to explore the visualized insights.
+   Open PowerBI and connect to your SQL database. Import the prepared data and utilize the provided PowerBI dashboard file (`Dashboard_HR.pbix`) to explore the visualized insights.
 
 ## Exploring the Dashboards
 
