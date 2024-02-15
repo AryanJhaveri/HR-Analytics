@@ -1,0 +1,127 @@
+select * from employee_data;
+
+select termdate from employee_data
+WHERE termdate IS NOT NULL
+order by termdate DESC;
+
+--create new column age
+ALTER TABLE employee_data
+ADD age varchar(50);
+
+UPDATE employee_data
+SET age = CASE
+    WHEN EXTRACT(YEAR FROM CURRENT_DATE) - EXTRACT(YEAR FROM birthdate) < 0 THEN NULL
+    ELSE EXTRACT(YEAR FROM CURRENT_DATE) - EXTRACT(YEAR FROM birthdate)
+END;
+
+--age distribution 
+SELECT MIN(age) as Min_age, MAX(age) as Max_age
+FROM employee_data;
+
+--age group
+
+SELECT age_group, count(*) as count
+FROM
+(SELECT 
+CASE 
+    WHEN CAST(age AS INTEGER) >= 21 AND CAST(age AS INTEGER) <= 30 THEN '21 to 30'
+    WHEN CAST(age AS INTEGER) >= 31 AND CAST(age AS INTEGER) < 40 THEN '31 to 40'
+    WHEN CAST(age AS INTEGER) >= 41 AND CAST(age AS INTEGER) < 50 THEN '41 to 50'
+    ELSE 'more than 50'
+END AS age_group
+FROM employee_data
+WHERE termdate IS NULL) as sub
+GROUP BY age_group
+ORDER BY age_group;
+
+--age by gender
+SELECT age_group, gender, count(*) as count
+FROM
+(SELECT 
+CASE 
+    WHEN CAST(age AS INTEGER) >= 21 AND CAST(age AS INTEGER) <= 30 THEN '21 to 30'
+    WHEN CAST(age AS INTEGER) >= 31 AND CAST(age AS INTEGER) < 40 THEN '31 to 40'
+    WHEN CAST(age AS INTEGER) >= 41 AND CAST(age AS INTEGER) < 50 THEN '41 to 50'
+    ELSE 'more than 50'
+END AS age_group, gender
+FROM employee_data
+WHERE termdate IS NULL) as sub
+GROUP BY age_group,gender
+ORDER BY age_group,gender;
+
+--gender breakdown
+
+SELECT gender, count(gender) as gender_count
+FROM employee_data
+WHERE termdate is null
+group by gender;
+
+--gender by department
+SELECT department,gender, count(gender) as gender_count
+FROM employee_data
+WHERE termdate is null
+group by department, gender
+order by department, gender;
+
+--job titles
+SELECT department,jobtitle,gender, count(gender) as gender_count
+FROM employee_data
+WHERE termdate is null
+group by department, jobtitle,gender
+order by department, jobtitle,gender;
+
+--race districution
+
+SELECT race, count(race) as race_count
+FROM employee_data
+WHERE termdate is NULL
+group by race
+order by race_count DESC;
+
+-- average employment time
+
+SELECT round(CAST(AVG(EXTRACT(year FROM AGE(termdate, hire_date))) AS numeric), 2) AS avg_employment_time
+FROM employee_data
+WHERE termdate IS NOT NULL;
+
+--employment time by department
+SELECT department,round(CAST(AVG(EXTRACT(year FROM AGE(termdate, hire_date))) AS numeric), 2) AS avg_employment_time
+FROM employee_data
+WHERE termdate IS NOT NULL
+GROUP BY department
+ORDER BY avg_employment_time;
+
+--how many people work remotely by department
+
+SELECT department, count(location) as remote_count
+FROM employee_data
+WHERE location='Remote' AND termdate IS NULL
+GROUP BY department
+ORDER BY remote_count;
+
+--distribution by state
+SELECT location_state, count(location_state) as state_count
+FROM employee_data
+WHERE termdate IS NULL
+GROUP BY location_state
+order by state_count DESC;
+
+--jobtitle distribution
+SELECT jobtitle, count(jobtitle) as jobtitle_count
+FROM employee_data
+WHERE termdate IS NULL
+GROUP BY jobtitle
+order by jobtitle_count DESC;
+
+--employee hire count varied over time
+select hire_year, hires, terminations, round((CAST(hires-terminations AS numeric)/hires)*100,2) AS percent_hire_change
+FROm 
+(select 
+	EXTRACT(year from hire_date) AS hire_year,
+	count(*) as hires,
+	SUM( CASE
+		WHEN termdate is not null THEN 1
+	   ELSE 0 END) AS terminations
+FROM employee_data
+GROUP BY hire_year) as sub
+order by hire_year;

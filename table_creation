@@ -1,0 +1,20 @@
+CREATE TABLE employee_data (
+    id VARCHAR PRIMARY KEY,
+    first_name VARCHAR(255) NOT NULL,
+    last_name VARCHAR(255) NOT NULL,
+    birthdate DATE,
+    gender VARCHAR(50),
+    race VARCHAR(50),
+    department VARCHAR(255),
+    jobtitle VARCHAR(255),
+    location VARCHAR(255),
+    hire_date DATE,
+    termdate DATE,
+    location_city VARCHAR(255),
+    location_state VARCHAR(255)
+);
+
+SET datestyle = 'ISO, MDY';
+COPY employee_data FROM 'D:\2_Extra\Project_HR\HR Data.csv' CSV HEADER;
+
+select * FROM employee_data;
